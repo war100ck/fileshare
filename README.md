@@ -24,7 +24,7 @@ Share folders from any drive over your LAN or the internet: public download link
 ## Build
 
 ```bash
-git clone https://github.com/<you>/fileshare.git
+git clone https://github.com/war100ck/fileshare.git
 cd fileshare
 go build -o fileshare.exe ./cmd/server     # Windows
 # go build -o fileshare ./cmd/server       # Linux/macOS
@@ -118,7 +118,7 @@ fileshare download http://192.168.1.5:8080/s/<token> -o ./Downloads -j 8 -passwo
 ## Сборка
 
 ```bash
-git clone https://github.com/<вы>/fileshare.git
+git clone https://github.com/war100ck/fileshare.git
 cd fileshare
 go build -o fileshare.exe ./cmd/server     # Windows
 # go build -o fileshare ./cmd/server       # Linux/macOS
@@ -183,5 +183,4 @@ fileshare download http://192.168.1.5:8080/s/<токен> -o ./Загрузки 
 ## Важно о безопасности
 
 - Сразу смените пароль по умолчанию.
-- **Не коммитьте** `config.json` (хеши паролей, токены ссылок) и `data/` (**ключ хоста** SFTP) — они специально в `.gitignore`.
 - Для выхода в интернет предпочитайте HTTPS или доверенные сети.
