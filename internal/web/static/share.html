@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FileShare — скачивание</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="main" style="max-width:960px;margin:0 auto;padding:24px 16px">
+  <div class="toolbar">
+    <div class="logo">📁 <span id="sh-title">FileShare</span></div>
+    <div class="spacer"></div>
+    <span class="badge" id="sh-stats"></span>
+  </div>
+
+  <div id="pwd-gate" class="card hidden">
+    <label>Эта ссылка защищена паролем
+      <input id="pwd-input" type="password" placeholder="Пароль">
+    </label>
+    <div style="margin-top:10px">
+      <button class="btn primary" id="pwd-btn">Открыть</button>
+      <span id="pwd-err" class="error" style="display:inline-block;margin-left:10px"></span>
+    </div>
+  </div>
+
+  <div id="content" class="hidden">
+    <div class="toolbar">
+      <div id="crumb" class="crumb"></div>
+      <div class="spacer"></div>
+      <button class="btn" id="btn-up">↑ Наверх</button>
+      <button class="btn primary" id="btn-dl">⬇ Скачать папку (файлами)</button>
+      <a class="btn" id="btn-manifest" href="#">manifest.json</a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Имя</th><th class="num">Размер</th><th>Изменён</th><th></th></tr></thead>
+        <tbody id="body"></tbody>
+      </table>
+      <div id="empty" class="empty hidden">Папка пуста</div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <b>Варианты скачивания большой папки (50+ ГБ):</b>
+      <div class="hint" style="margin-top:6px">
+        1. Кнопка «Скачать папку» — прямо в браузере, файл за файлом, с возобновлением (Chrome/Edge + HTTPS).
+      </div>
+      <div class="hint" style="margin-top:4px">
+        2. Загрузчик — одна команда, параллельно, с проверкой хешей:
+      </div>
+      <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+        <a class="btn" href="/dl" download="fileshare.exe">Скачать fileshare.exe</a>
+        <code id="dl-cmd"></code>
+        <button class="btn small" id="copy-cmd">Копировать команду</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/dl.js"></script>
+<script src="/static/share.js"></script>
+</body>
+</html>

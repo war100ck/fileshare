@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FileShare</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>📁</text></svg>">
+</head>
+<body>
+
+<div id="login-view" class="login-wrap hidden">
+  <form id="login-form" class="login-card">
+    <div class="logo">FileShare</div>
+    <div class="hint">Вход в файловый сервер</div>
+    <input id="login-user" placeholder="Логин" autocomplete="username" required>
+    <input id="login-pass" type="password" placeholder="Пароль" autocomplete="current-password" required>
+    <button type="submit" class="btn primary">Войти</button>
+    <div id="login-error" class="error"></div>
+  </form>
+</div>
+
+<div id="app-view" class="app hidden">
+  <aside class="sidebar">
+    <div class="logo">FileShare</div>
+    <nav id="nav">
+      <a href="#" data-view="files" class="active">Файлы</a>
+      <a href="#" data-view="shares">Публичные ссылки</a>
+      <a href="#" data-view="users" class="admin-only">Пользователи</a>
+      <a href="#" data-view="settings" class="admin-only">Настройки</a>
+      <a href="#" data-view="net" class="admin-only">Доступ в интернет</a>
+      <a href="#" data-view="password">Мой пароль</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div id="whoami" class="hint"></div>
+      <button id="logout-btn" class="btn small">Выйти</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- FILES -->
+    <section id="view-files" class="view">
+      <div class="toolbar">
+        <div id="breadcrumb" class="crumb"></div>
+        <div class="spacer"></div>
+        <button class="btn" id="btn-up">↑ Наверх</button>
+        <button class="btn primary hidden" id="btn-dl-dir">⬇ Скачать папку</button>
+        <button class="btn" id="btn-mkdir">Новая папка</button>
+        <button class="btn" id="btn-upload">Загрузить</button>
+        <input type="file" id="file-input" multiple class="hidden">
+      </div>
+      <div id="dropzone" class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Имя</th><th class="num">Размер</th><th>Изменён</th><th></th></tr></thead>
+          <tbody id="fs-body"></tbody>
+        </table>
+        <div id="fs-empty" class="empty hidden">Папка пуста. Перетащите файлы сюда или нажмите «Загрузить».</div>
+      </div>
+    </section>
+
+    <!-- SHARES -->
+    <section id="view-shares" class="view hidden">
+      <h2>Публичные ссылки</h2>
+      <div class="card">
+        <div class="form-grid">
+          <label>Путь к файлу/папке (в корне файлов)<input id="sh-path" placeholder="Games/MyGame"></label>
+          <label>Название<input id="sh-name" placeholder="My Game"></label>
+          <label>Пароль (необязательно)<input id="sh-pass" type="text" placeholder="без пароля"></label>
+          <label>Действует до (необязательно)<input id="sh-exp" type="datetime-local"></label>
+        </div>
+        <button class="btn primary" id="sh-create">Создать ссылку</button>
+      </div>
+      <div class="hint" style="margin:10px 0">
+        Массовое скачивание папки: <code id="dl-example"></code>
+      </div>
+      <table class="table">
+        <thead><tr><th>Название</th><th>Путь</th><th>Ссылка</th><th>До</th><th></th></tr></thead>
+        <tbody id="shares-body"></tbody>
+      </table>
+    </section>
+
+    <!-- USERS -->
+    <section id="view-users" class="view hidden">
+      <h2>Пользователи</h2>
+      <div class="card">
+        <div class="form-grid three">
+          <label>Логин<input id="u-name"></label>
+          <label>Пароль<input id="u-pass"></label>
+          <label class="check"><input type="checkbox" id="u-admin"> Администратор</label>
+        </div>
+        <button class="btn primary" id="u-create">Добавить</button>
+      </div>
+      <table class="table">
+        <thead><tr><th>Логин</th><th>Роль</th><th></th></tr></thead>
+        <tbody id="users-body"></tbody>
+      </table>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="view-settings" class="view hidden">
+      <h2>Настройки</h2>
+      <div class="card">
+        <h3 style="margin:0 0 6px">Папки для шаринга</h3>
+        <div class="hint">Любые папки с дисков сервера. Первой всегда добавляется корневая папка программы. Эти папки видны в вебе и в SFTP (Total Commander).</div>
+        <table class="table" style="margin-top:10px">
+          <thead><tr><th>Имя</th><th>Путь на сервере</th><th></th></tr></thead>
+          <tbody id="mounts-body"></tbody>
+        </table>
+        <div class="form-grid three" style="margin-top:12px">
+          <label>Имя (короткое, видно в SFTP)<input id="m-name" placeholder="Игры"></label>
+          <label>Путь на сервере<input id="m-path" placeholder="D:\Games" readonly></label>
+          <label>&nbsp;<button class="btn" id="m-browse" type="button">Обзор по дискам…</button></label>
+        </div>
+        <button class="btn primary" id="m-add">Добавить папку</button>
+      </div>
+      <div class="card">
+        <div class="form-grid">
+          <label>Порт веб-интерфейса<input id="set-web" type="number"></label>
+          <label>Порт SFTP<input id="set-sftp" type="number"></label>
+          <label>Слушать адрес (bind)<input id="set-bind"></label>
+          <label>Корень файлов (системный)<input id="set-root" readonly></label>
+          <label class="check"><input type="checkbox" id="set-https"> HTTPS (самоподписанный сертификат)</label>
+          <label>Лимит ZIP, байт<input id="set-zip" type="number"></label>
+          <label>Внешний IP (вручную или пусто = авто)<input id="set-ip"></label>
+          <label>Сессия, минут<input id="set-ttl" type="number"></label>
+        </div>
+        <div id="cert-info" class="hint"></div>
+        <button class="btn primary" id="set-save">Сохранить и применить</button>
+        <div class="hint" style="margin-top:8px">Порты применяются сразу: сервер переподключится, вкладка может перезагрузиться.</div>
+      </div>
+    </section>
+
+    <!-- NET -->
+    <section id="view-net" class="view hidden">
+      <h2>Доступ в интернет</h2>
+      <div class="card">
+        <div class="kv"><span>Внешний IP:</span><b id="net-ext">…</b></div>
+        <div class="kv"><span>Ваш в LAN:</span><b id="net-lan">…</b></div>
+        <div class="kv"><span>Веб-порт:</span><b id="net-web"></b></div>
+        <div class="kv"><span>SFTP-порт:</span><b id="net-sftp"></b></div>
+        <pre id="net-instr" class="pre"></pre>
+        <div class="hint">Проверка извне: откройте <span id="net-url"></span> с телефона через мобильный интернет.</div>
+      </div>
+    </section>
+
+    <!-- PASSWORD -->
+    <section id="view-password" class="view hidden">
+      <h2>Смена пароля</h2>
+      <div class="card">
+        <div class="form-grid">
+          <label>Текущий пароль<input id="pw-old" type="password"></label>
+          <label>Новый пароль<input id="pw-new" type="password"></label>
+          <label>Повторите новый<input id="pw-new2" type="password"></label>
+        </div>
+        <button class="btn primary" id="pw-save">Сменить пароль</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<div id="browse-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="toolbar">
+      <div id="br-crumb" class="crumb"></div>
+      <div class="spacer"></div>
+      <button class="btn primary" id="br-select" disabled>Выбрать эту папку</button>
+      <button class="btn" id="br-close">Закрыть</button>
+    </div>
+    <div id="br-drives" class="drives"></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Папка</th><th>Изменена</th></tr></thead>
+        <tbody id="br-body"></tbody>
+      </table>
+      <div id="br-empty" class="empty hidden">Нет подпапок</div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/dl.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
